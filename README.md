@@ -1,4 +1,4 @@
-# Controle Avançado / Advanced Control
+# Controle Avançado / Advanced Control (2023)
 
 Compilado de código de Controle Avançado, incluindo SEL0367-Controle Adaptativo e SEL0326-Controle de Sistemas Lineares. Todos os programas desenvolvidos na disciplina foram feitos em linguagem Python e possuem apenas fins educacionais.
 
