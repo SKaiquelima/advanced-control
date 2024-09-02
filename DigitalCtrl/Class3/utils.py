@@ -9,10 +9,12 @@ from numpy import cos, sin
 
 def PlotExpr(n_values, expr, LIM=10):
     """
-    Converte uma expressão UnitImpulse do lcapy em um impulso unitário numérico e plota usando stem.
+    Converte uma expressão UnitImpulse ou UnitStep do LCapy para plotar em matplotlib.
 
     Parameters:
-    expr (Expr): Expressão UnitImpulse(n - k) do lcapy.
+    expr (Expr): Expressão UnitImpulse(n - k) do lcapy por exemplo 
+    n_values (array): Vetor de valores de n para avaliar a expressão e plotar
+    LIM (int): Limite para plotar o gráfico
     """
 
     expr_str = str(expr)
