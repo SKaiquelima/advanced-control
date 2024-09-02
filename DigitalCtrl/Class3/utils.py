@@ -7,7 +7,7 @@ from lcapy import UnitImpulse, UnitStep
 import re 
 from numpy import cos, sin
 
-def Convert(n_values, expr, LIM=10):
+def PlotExpr(n_values, expr, LIM=10):
     """
     Converte uma expressão UnitImpulse do lcapy em um impulso unitário numérico e plota usando stem.
 
