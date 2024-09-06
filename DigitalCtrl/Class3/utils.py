@@ -1,93 +1,91 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from sympy import pprint, simplify
-import lcapy as lc 
-from lcapy.discretetime import n, z
-from lcapy import UnitImpulse, UnitStep
 import re 
 from numpy import cos, sin
 
 def PlotExpr(n_values, expr, LIM=10):
     """
-    Converte uma expressão UnitImpulse ou UnitStep do LCapy para plotar em matplotlib.
+    Converts a UnitImpulse or UnitStep expression from LCapy to plot in matplotlib.
 
     Parameters:
-    expr (Expr): Expressão UnitImpulse(n - k) do lcapy por exemplo 
-    n_values (array): Vetor de valores de n para avaliar a expressão e plotar
-    LIM (int): Limite para plotar o gráfico
+    expr (Expr): LCapy's UnitImpulse(n - k) expression, for example
+    n_values (array): Array of n values to evaluate the expression and plot
+    LIM (int): Limit to plot the graph
     """
 
     expr_str = str(expr)
     impulse = np.zeros(len(n_values))
     step = np.zeros(len(n_values))
     
-    # Verifica se a string contém 'UnitImpulse'
+    # Check if the string contains 'UnitImpulse'
     if 'UnitImpulse' in expr_str:
-        # Extrai o deslocamento (shift) do impulso a partir da string
+        # Extract the impulse shift from the string
         shift_str = expr_str.split('UnitImpulse(')[1].split(')')[0].strip()
-        
         try:
-            # Converte o deslocamento para inteiro
+            # Convert the shift to an integer
             shift_str = shift_str.replace('n', '0')
             shift = int(eval(shift_str))
         except ValueError:
-            print("Erro: Deslocamento não é um inteiro válido.")
+            print("Error: Shift is not a valid integer.")
             return
         
-
         impulse = np.zeros(len(n_values))
         
-        # Coloca o impulso na posição correta com base no deslocamento
+        # Place the impulse at the correct position based on the shift
         if (shift + LIM) < len(impulse) and (shift + LIM) >= 0:
             impulse[shift + LIM] = 1
         
     if 'UnitStep' in expr_str:
-        # Extrai o deslocamento (shift) do passo a partir da string
+        # Extract the step shift from the string
         shift_str = expr_str.split('UnitStep(')[1].split(')')[0].strip()
-        
         try:
-            # Converte o deslocamento para inteiro
+            # Convert the shift to an integer
             shift_str = shift_str.replace('n', '0')
             shift = int(eval(shift_str))
         except ValueError:
-            print("Erro: Deslocamento não é um inteiro válido.")
+            print("Error: Shift is not a valid integer.")
             return np.zeros(len(n_values))
         
-        # Cria o vetor da função de passo unitário
+        # Create the unit step function vector
         step = np.zeros(len(n_values))
         
-        # Preenche a função de passo com base no deslocamento
+        # Fill the unit step function based on the shift
         step[n_values >= shift] = 1
     
-    
-    # Verifica se a expressão contém 'UnitImpulse' ou 'UnitStep'
+    # Replace all integers with floats, but ignore numbers that are already floats
+    expr_str = re.sub(r'(?<!\.)\b(\d+)\b(?!\.\d)', r'\1.0', expr_str)
+
+    # Replace negative powers to ensure they are applied to floats
+    expr_str = re.sub(r'(\d+)\*\*(\-?\d+)', r'(\1.0)**(\2)', expr_str)
+
+    # Check if the expression contains 'UnitImpulse' or 'UnitStep'
     expr_str = re.sub(r'UnitImpulse\([^)]*\)', 'impulse', expr_str)
     expr_str = re.sub(r'UnitStep\([^)]*\)', 'step', expr_str)
 
-    # replace n by 0 
+    # Replace n by 0 
     expr_str = expr_str.replace('n', 'n_values')
 
-
-    # Cria um contexto para avaliação com base nas variáveis presentes na expressão
+    # Create a context for evaluation based on the variables present in the expression
     context = {}
     context_test = {
+        'T': 1,
         'impulse': impulse,
         'step': step,
         'cos': cos,
-        'sin': sin,
-        'n_values': n_values
+        'sin_values': sin,
+        'atan_values': np.arctan,
+        'sqrt': np.sqrt,
+        'n_values': n_values,
     }
-    # Adiciona variáveis ao contexto com base no dicionário
+    # Add variables to the context based on the dictionary
     for key, value in context_test.items():
         if key in expr_str:
             context[key] = value
 
     try:
-        # Avalia a expressão
+        # Evaluate the expression
         signal = eval(expr_str, context)
     except Exception as e:
-        print(f"Erro ao avaliar a expressão: {e}")
+        print(f"Error evaluating the expression: {e}")
         raise e
-        return None
 
     return signal
